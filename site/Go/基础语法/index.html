@@ -8,23 +8,23 @@
   
   
   
-  <link rel="shortcut icon" href="../../../img/favicon.ico">
-  <title>通用CURD方法 - GXJ's Notes</title>
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>基础语法 - GXJ's Notes</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
-  <link rel="stylesheet" href="../../../css/theme.css" />
-  <link rel="stylesheet" href="../../../css/theme_extra.css" />
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
   
   <script>
     // Current page data
-    var mkdocs_page_name = "\u901a\u7528CURD\u65b9\u6cd5";
-    var mkdocs_page_input_path = "Go/Gorm/\u901a\u7528CURD\u65b9\u6cd5.md";
+    var mkdocs_page_name = "\u57fa\u7840\u8bed\u6cd5";
+    var mkdocs_page_input_path = "Go/\u57fa\u7840\u8bed\u6cd5/index.md";
     var mkdocs_page_url = null;
   </script>
   
-  <script src="../../../js/jquery-2.1.1.min.js" defer></script>
-  <script src="../../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
 </head>
@@ -37,9 +37,9 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-        <a href="../../.." class="icon icon-home"> GXJ's Notes</a>
+        <a href="../.." class="icon icon-home"> GXJ's Notes</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -47,18 +47,29 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
                 <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                    <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
                     </li>
                 </ul>
                 <p class="caption"><span class="caption-text">Go</span></p>
                 <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="#">Gorm</a>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">基础语法</a>
     <ul class="current">
-                <li class="toctree-l2 current"><a class="reference internal current" href="./">通用CURD方法</a>
-    <ul class="current">
+    </ul>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="#">第三方库</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="#">Gorm</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93/Gorm/%E9%80%9A%E7%94%A8CURD%E6%96%B9%E6%B3%95/">通用CURD方法</a>
+                </li>
     </ul>
                 </li>
     </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">MkDocs</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../MkDocs/">安装及部署</a>
                     </li>
                 </ul>
       </div>
@@ -70,7 +81,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../..">GXJ's Notes</a>
+        <a href="../..">GXJ's Notes</a>
       </nav>
 
       
@@ -78,19 +89,15 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="../../..">Docs</a> &raquo;</li>
+    <li><a href="../..">Docs</a> &raquo;</li>
     
       
         
           <li>Go &raquo;</li>
         
       
-        
-          <li>Gorm &raquo;</li>
-        
-      
     
-    <li>通用CURD方法</li>
+    <li>基础语法</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -102,81 +109,7 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="curd">通用CURD方法</h1>
-<p>database.go</p>
-<pre><code class="language-go">package database
-
-import (
-    &quot;gorm.io/driver/mysql&quot;
-    &quot;gorm.io/gorm&quot;
-)
-var MysqlDB *gorm.DB
-
-func MysqlInit() error {
-    var err error
-    MysqlDB, err = gorm.Open(mysql.Open(Host), &amp;gorm.Config{})
-    if err != nil {
-        panic(err)
-    }
-    return err
-}
-</code></pre>
-<p>basemodel.go</p>
-<pre><code class="language-go">package model
-
-import (
-    &quot;app/database&quot;
-)
-
-type TableNameAble interface {
-    TableName() string
-}
-
-func Create(value TableNameAble) error {
-    err := database.MysqlDB.Create(value).Error
-    return err
-}
-</code></pre>
-<p>user.go</p>
-<pre><code class="language-go">package model
-
-import (
-    &quot;gorm.io/gorm&quot;
-)
-
-type User struct {
-    gorm.Model
-    Name string
-    Age int
-}
-func (User) TableName() string {
-    return &quot;User&quot;
-}
-</code></pre>
-<p>controller.go 以Gin为例</p>
-<pre><code class="language-go">package controller
-
-import (
-    &quot;app/model&quot;
-    &quot;github.com/gin-gonic/gin&quot;
-)
-
-func Create(c *gin.Context) {
-    var user model.User
-    user.Name = &quot;username&quot;
-    user.Age = age
-    err := model.Create(&amp;user)
-    if err != nil {
-        c.JSON(500, gin.H{
-            &quot;message&quot;: &quot;create failed&quot;,
-        })
-        return
-    }
-    c.JSON(200, gin.H{
-        &quot;message&quot;: &quot;create success&quot;,
-    })
-}
-</code></pre>
+                <h1 id="_1">待完善</h1>
               
             </div>
           </div>
@@ -184,8 +117,10 @@ func Create(c *gin.Context) {
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="../%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93/Gorm/%E9%80%9A%E7%94%A8CURD%E6%96%B9%E6%B3%95/" class="btn btn-neutral float-right" title="通用CURD方法">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-        <a href="../../.." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+        <a href="../.." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -211,15 +146,17 @@ func Create(c *gin.Context) {
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93/Gorm/%E9%80%9A%E7%94%A8CURD%E6%96%B9%E6%B3%95/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
-    <script>var base_url = '../../..';</script>
-    <script src="../../../js/theme_extra.js" defer></script>
-    <script src="../../../js/theme.js" defer></script>
-      <script src="../../../search/main.js" defer></script>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
     <script defer>
         window.onload = function () {
             SphinxRtdTheme.Navigation.enable(true);
