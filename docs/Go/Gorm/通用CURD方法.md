@@ -1,5 +1,5 @@
 
-# 通用CURD方法 
+# 通用CURD方法
 
 database.go
 
