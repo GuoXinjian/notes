@@ -1,5 +1,7 @@
 site_name: 个人笔记test
 # site_url: https://example.com/
 
+nav:
+
 
 theme: readthedocs
