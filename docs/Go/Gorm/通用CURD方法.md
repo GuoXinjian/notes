@@ -7,7 +7,6 @@ database.go
 package database
 
 import (
-    "app/database"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
 )

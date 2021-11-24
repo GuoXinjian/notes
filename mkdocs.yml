@@ -1,7 +1,10 @@
-site_name: 个人笔记test
+site_name: GXJ's Notes
 # site_url: https://example.com/
 
 nav:
-
+  - Home: index.md
+  - Go: 
+    - Gorm: 
+      - 通用CURD方法: Go/Gorm/通用CURD方法.md
 
 theme: readthedocs
