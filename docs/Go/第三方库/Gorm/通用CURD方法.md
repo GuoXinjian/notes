@@ -39,6 +39,11 @@ func Create(value TableNameAble) error {
     err := database.MysqlDB.Create(value).Error
     return err
 }
+
+func GetList(value TableNameAble,result interface{}) error {
+    err := database.MysqlDB.Model(value).Find(result,value).Error
+    return err
+}
 ```
 
 user.go
@@ -85,4 +90,16 @@ func Create(c *gin.Context) {
         "message": "create success",
     })
 }
+
+func GetList(c *gin.Context) {
+    var users []model.User
+    var user model.User
+    err := model.GetList(user,&users)
+    if err != nil {
+        c.JSON(500, gin.H{
+            "message": "get list failed",
+        })
+        return
+    }
+    c.JSON(200, gin.H{"users": users})
 ```
