@@ -40,6 +40,12 @@ func Create(value TableNameAble) error {
     return err
 }
 
+// 只能通过主键查询，如需查询其他字段，使用GetList
+func Get(value TableNameAble) error {
+    err := database.MysqlDB.First(value).Error
+    return err
+}
+
 func GetList(value TableNameAble,result interface{}) error {
     err := database.MysqlDB.Model(value).Find(result,value).Error
     return err

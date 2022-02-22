@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../../../../img/favicon.ico">
-  <title>通用CURD方法 - GXJ's Notes</title>
+  <title>使用Preload进行预加载 - GXJ's Notes</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../../../../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "\u901a\u7528CURD\u65b9\u6cd5";
-    var mkdocs_page_input_path = "Go/\u7b2c\u4e09\u65b9\u5e93/Gorm/\u901a\u7528CURD\u65b9\u6cd5.md";
+    var mkdocs_page_name = "\u4f7f\u7528Preload\u8fdb\u884c\u9884\u52a0\u8f7d";
+    var mkdocs_page_input_path = "Go/\u7b2c\u4e09\u65b9\u5e93/Gorm/\u4f7f\u7528\u5916\u952e\u5173\u8054\u548cPreload\u9884\u52a0\u8f7d.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -51,16 +51,14 @@
                     </li>
                 </ul>
                 <p class="caption"><span class="caption-text">Go</span></p>
-                <ul class="current">
+                <ul>
                     <li class="toctree-l1"><a class="reference internal" href="../../../%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/">基础语法</a>
                     </li>
-                    <li class="toctree-l1 current"><a class="reference internal current" href="#">第三方库</a>
-    <ul class="current">
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">Gorm</a>
-    <ul class="current">
-                <li class="toctree-l3 current"><a class="reference internal current" href="./">通用CURD方法</a>
-    <ul class="current">
-    </ul>
+                    <li class="toctree-l1"><a class="reference internal" href="#">第三方库</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="#">Gorm</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../%E9%80%9A%E7%94%A8CURD%E6%96%B9%E6%B3%95/">通用CURD方法</a>
                 </li>
     </ul>
                 </li>
@@ -92,20 +90,8 @@
     <li><a href="../../../..">Docs</a> &raquo;</li>
     
       
-        
-          <li>Go &raquo;</li>
-        
-      
-        
-          <li>第三方库 &raquo;</li>
-        
-      
-        
-          <li>Gorm &raquo;</li>
-        
-      
     
-    <li>通用CURD方法</li>
+    <li>使用Preload进行预加载</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -117,7 +103,7 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="curd">通用CURD方法</h1>
+                <h1 id="preload">使用Preload进行预加载</h1>
 <p>database.go</p>
 <pre><code class="language-go">package database
 
@@ -136,33 +122,6 @@ func MysqlInit() error {
     return err
 }
 </code></pre>
-<p>basemodel.go</p>
-<pre><code class="language-go">package model
-
-import (
-    &quot;app/database&quot;
-)
-
-type TableNameAble interface {
-    TableName() string
-}
-
-func Create(value TableNameAble) error {
-    err := database.MysqlDB.Create(value).Error
-    return err
-}
-
-// 只能通过主键查询，如需查询其他字段，使用GetList
-func Get(value TableNameAble) error {
-    err := database.MysqlDB.First(value).Error
-    return err
-}
-
-func GetList(value TableNameAble,result interface{}) error {
-    err := database.MysqlDB.Model(value).Find(result,value).Error
-    return err
-}
-</code></pre>
 <p>user.go</p>
 <pre><code class="language-go">package model
 
@@ -170,13 +129,24 @@ import (
     &quot;gorm.io/gorm&quot;
 )
 
-type User struct {
+type Class struct {
+    gorm.Model
+    Name string
+}
+
+type Student struct {
     gorm.Model
     Name string
     Age int
+    ClassID uint
+    Class Class `gorm:&quot;foreignkey:ClassID&quot;`
 }
-func (User) TableName() string {
-    return &quot;User&quot;
+
+type Parent struct {
+    gorm.Model
+    Name string
+    StudentID uint
+    Student Student `gorm:&quot;foreignkey:StudentID&quot;`
 }
 </code></pre>
 <p>controller.go 以Gin为例</p>
@@ -187,47 +157,42 @@ import (
     &quot;github.com/gin-gonic/gin&quot;
 )
 
-func Create(c *gin.Context) {
-    var user model.User
-    user.Name = &quot;username&quot;
-    user.Age = age
-    err := model.Create(&amp;user)
-    if err != nil {
-        c.JSON(500, gin.H{
-            &quot;message&quot;: &quot;create failed&quot;,
-        })
-        return
-    }
-    c.JSON(200, gin.H{
-        &quot;message&quot;: &quot;create success&quot;,
-    })
-}
 
 func GetList(c *gin.Context) {
-    var users []model.User
-    var user model.User
-    err := model.GetList(user,&amp;users)
+    var parent model.Parent
+    parent.Name = &quot;parentname&quot;
+    err := database.MysqlDB.Preload(&quot;Student&quot;).Preload(&quot;Student.Class&quot;).Find(&amp;parent).Error
     if err != nil {
         c.JSON(500, gin.H{
             &quot;message&quot;: &quot;get list failed&quot;,
         })
         return
     }
-    c.JSON(200, gin.H{&quot;users&quot;: users})
+    c.JSON(200, gin.H{&quot;parent&quot;: parent})
+</code></pre>
+<p>结果</p>
+<pre><code class="language-json">{
+    &quot;parent&quot;: {
+        &quot;ID&quot;: 1,
+        &quot;Name&quot;: &quot;parentname&quot;,
+        &quot;Student&quot;: {
+            &quot;ID&quot;: 1,
+            &quot;Name&quot;: &quot;studentname&quot;,
+            &quot;Age&quot;: 18,
+            &quot;Class&quot;: {
+                &quot;ID&quot;: 1,
+                &quot;Name&quot;: &quot;classname&quot;
+            }
+        }
+    }    
+}
+
+
 </code></pre>
               
             </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../../../../MkDocs/" class="btn btn-neutral float-right" title="安装及部署">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-        <a href="../../../%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" class="btn btn-neutral" title="基础语法"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
@@ -251,10 +216,6 @@ func GetList(c *gin.Context) {
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../../../%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../../../../MkDocs/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
