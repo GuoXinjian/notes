@@ -54,6 +54,8 @@
                 <ul class="current">
                     <li class="toctree-l1 current"><a class="reference internal current" href="./">基础语法</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_2">带参数运行</a>
+    </li>
     </ul>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="#">第三方库</a>
@@ -112,6 +114,19 @@
             <div class="section">
               
                 <h1 id="_1">待完善</h1>
+<h2 id="_2">带参数运行</h2>
+<pre><code class="language-go">import (
+    &quot;fmt&quot;
+    &quot;flag&quot;
+)
+
+func main() {
+    var env string
+    flag.StringVar(&amp;env, &quot;env&quot;, &quot;dev&quot;, &quot;-env 默认为dev&quot;)
+    flag.Parse()
+    fmt.Println(env)
+}
+</code></pre>
               
             </div>
           </div>
